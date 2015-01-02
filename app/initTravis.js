@@ -1,4 +1,5 @@
 var chalk = require('chalk')
+  , travisjs = require.resolve('travisjs/bin/travisjs')
 
 module.exports = function () {
   // var packageJSON = require('./packageJson').get();
@@ -15,11 +16,7 @@ module.exports = function () {
   }], function (props) {
     if (!props.travisHook) return done() // opt out
 
-    // TODO: check if travisjs is installed
-
-    console.log(chalk.yellow.bold('travisjs init'));
-
-    self.spawnCommand('travisjs', ['init'])
+    self.spawnCommand('node', [travisjs, 'init'])
       .on('error', end)
       .on('exit', end);
 

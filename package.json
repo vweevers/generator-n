@@ -21,10 +21,12 @@
     "url": "https://github.com/anvaka"
   },
   "dependencies": {
+    "appveyor": "~0.4.0",
     "chalk": "~0.3.0",
     "octonode": "0.4.1",
     "parse-author": "~0.1.0",
     "q": "~0.9.7",
+    "travisjs": "~0.4.0",
     "yeoman-generator": "~0.14.0"
   },
   "devDependencies": {

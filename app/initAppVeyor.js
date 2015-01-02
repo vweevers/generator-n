@@ -1,4 +1,5 @@
 var chalk = require('chalk')
+  , appveyor = require.resolve('appveyor/appveyor')
 
 module.exports = function () {
   // var packageJSON = require('./packageJson').get();
@@ -15,11 +16,7 @@ module.exports = function () {
   }], function (props) {
     if (!props.appveyorHook) return done() // opt out
 
-    // TODO: check if appveyor is installed
-
-    console.log(chalk.yellow.bold('appveyor init'));
-
-    self.spawnCommand('appveyor', ['init'])
+    self.spawnCommand('node', [appveyor, 'init'])
       .on('error', end)
       .on('exit', end);
 
