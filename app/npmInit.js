@@ -1,10 +1,9 @@
 var chalk = require('chalk');
+var readPackage = require('./packageJson').read
 
 module.exports = function () {
   // let's see if we have package.json already:
-  if (require('./packageJson').get()) {
-    return;
-  }
+  if (readPackage()) return;
 
   // no package.json. Proceed to creation
   var done = this.async();

@@ -2,9 +2,6 @@ var chalk = require('chalk')
   , travisjs = require.resolve('travisjs/bin/travisjs')
 
 module.exports = function () {
-  // var packageJSON = require('./packageJson').get();
-  // if (!packageJSON.repository) return;
-
   var done = this.async();
   var self = this;
 

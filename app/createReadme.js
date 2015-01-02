@@ -3,36 +3,37 @@ var fs = require('fs');
 var path = require('path');
 var chalk = require('chalk');
 var parseAuthor = require('parse-author')
+var readPackage = require('./packageJson').read
 
 module.exports = function () {
-  var packageJson = require('./packageJson').get();
-  if (!packageJson) {
-    return; // How could this happen?
-  }
+  var pkg = readPackage();
+  if (!pkg) return;
 
-  initPackageVariables.bind(this)(packageJson);
-  copyTemplates.bind(this)(packageJson);
+  initPackageVariables.bind(this)(pkg);
+  copyTemplates.bind(this)();
 };
 
-function copyTemplates(packageJson) {
+function copyTemplates() {
   this.template('_readme.md', 'README.md');
 }
 
-function initPackageVariables(packageJson) {
-  this.packageName = packageJson.name;
+function initPackageVariables(pkg) {
+  this.packageName = pkg.name;
 
-  var authors = packageJson.authors || [packageJson.author]
+  var author = pkg.author
 
-  this.authorList = authors.map(function(author){
+  if (author) {
     if (typeof author == 'string') author = parseAuthor(author)
-    if (author.url) return '['+author.name+']('+author.url+')'
-    else return author.name
-  }).join(', ')
+    if (author.url) this.authorLink = '['+author.name+']('+author.url+')'
+    else this.authorLink = author.name
+  } else {
+    this.authorLink = ''
+  }
 
-  this.packageLicense = packageJson.license;
-  this.packageDescription = packageJson.description;
+  this.packageLicense = pkg.license;
+  this.packageDescription = pkg.description;
 
-  var repo = packageJson.repository || ''
+  var repo = pkg.repository || ''
   var url = typeof repo == 'string' ? repo : repo.url || ''
   var match = url.match(/.*github.com\/([^\.#$]+)/)
   this.repoName = (match && match[1]) || ''

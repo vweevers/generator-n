@@ -2,67 +2,59 @@
 var fs = require('fs');
 var path = require('path');
 var chalk = require('chalk');
+var readPackage = require('./packageJson').read
 
 module.exports = function () {
-  var packageJson = require('./packageJson').get();
-  if (!packageJson) {
-    return; // How could this happen?
-  }
+  var pkg = readPackage();
+  if (!pkg) return;
 
-  initPackageVariables.bind(this)(packageJson);
-
-  copyTemplates.bind(this)(packageJson);
-  createEntryPoint.bind(this)(packageJson.main);
-  createLicense.bind(this)(packageJson.license);
-  createUnitTests.bind(this)(packageJson);
+  // why?!
+  initPackageVariables.bind(this)(pkg);
+  copyTemplates.bind(this)();
+  createEntryPoint.bind(this)(pkg.main);
+  createLicense.bind(this)(pkg.license);
+  createUnitTests.bind(this)(pkg);
 };
 
-function copyTemplates(packageJson) {
+function copyTemplates() {
   this.copy('_.gitignore', '.gitignore');
-  // this.template('_readme.md', 'README.md');
 }
 
-function createEntryPoint(mainFileName) {
-  if (!mainFileName) {
+function createEntryPoint(filename) {
+  if (!filename) {
     this.log.error('Main package file name is missing. File will not be created');
     return;
   }
 
   // create file if it does not exist:
-  var fd = fs.openSync(mainFileName, 'a');
+  var fd = fs.openSync(filename, 'a');
   fs.closeSync(fd);
 }
 
-function initPackageVariables(packageJson) {
-  this.packageName = packageJson.name;
-  this.packageAuthor = packageJson.author || '';
-  this.packageLicense = packageJson.license;
-  this.packageDescription = packageJson.description;
+function initPackageVariables(pkg) {
+  this.packageName = pkg.name;
+  this.packageAuthor = pkg.author || '';
+  this.packageLicense = pkg.license;
+  this.packageDescription = pkg.description;
 }
 
 function createLicense(license) {
-  if (license.match(/\bmit\b/i)) {
-    var licenseTemplate = 'mit';
-  } else if (license.match(/\bbsd\b/i)) {
-    licenseTemplate = license.indexOf('3') >= 0 ? 'bsd3' : 'bsd2';
-  } else {
-    // We don't have this license template. Ignore.
-    return;
-  }
+  if (license.match(/\bmit\b/i))
+    var tpl = 'mit'
+  else if (license.match(/\bbsd\b/i))
+    tpl = license.indexOf('3') >= 0 ? 'bsd3' : 'bsd2'
 
-  this.template(path.join('license', licenseTemplate), 'LICENSE');
+  if (tpl)
+    this.template(path.join('license', tpl), 'LICENSE')
 }
 
-function createUnitTests(packageJson) {
-  var testCommand = packageJson.scripts && packageJson.scripts.test;
+function createUnitTests(pkg) {
+  var testCommand = pkg.scripts && pkg.scripts.test;
   var match = testCommand.match(/^(tap|tape|mocha|grunt|cake)\b/);
   var framework = match && match[1];
 
-  if (!framework) {
-    // no testing framework found. Ignoring;
-    return;
+  if (framework) {
+    var done = this.async()
+    this.npmInstall([framework], { 'saveDev': true }, done);
   }
-
-  var done = this.async()
-  this.npmInstall([framework], { 'saveDev': true }, done);
 }

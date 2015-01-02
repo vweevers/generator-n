@@ -15,14 +15,18 @@ In fact it will delegate generation work to `npm init` itself, and then will do
 smart initializations, based on your package.json. This includes:
 
 * Create proper `LICENSE` file
-* Add author(s) to `README.md` with name and url
+* Add author to `README.md` with name and url
 * Include test dependency based on your `test` script
 * Initialize local git repository
-* Optional: initialize GitHub project
-* Optional: add `.travis.yml` and setup hook
-* Optional: add `appveyor.yml` and setup hook
+* Add `engines.node`: `>= 0.10.0`
 * Add [shield.io](https://shield.io) badges for npm, stability, David, Travis and/or AppVeyor.
 * <strike>Make initial commit to GitHub</strike>
+
+And optionally:
+
+* Initialize GitHub project
+* Add `.travis.yml` and setup hook
+* Add `appveyor.yml` and setup hook
 
 ## Demo
 [YouTube screencast](http://www.youtube.com/watch?v=VKsmKs9DzsE) (1 minute 22 seconds long)

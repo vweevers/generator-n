@@ -2,9 +2,6 @@ var chalk = require('chalk')
   , appveyor = require.resolve('appveyor/appveyor')
 
 module.exports = function () {
-  // var packageJSON = require('./packageJson').get();
-  // if (!packageJSON.repository) return;
-
   var done = this.async();
   var self = this;
 

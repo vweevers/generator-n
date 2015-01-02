@@ -1,6 +1,7 @@
 var fs = require('fs'),
     chalk = require('chalk'),
     Q = require('q'),
+    packageJson = require('./packageJson'),
     spawnCommand;
 
 module.exports = function () {
@@ -27,7 +28,7 @@ module.exports = function () {
 
     getToken(self)
       .then(createGitHubProject.bind(self))
-      .then(updatePackageJson.bind(self))
+      .then(updatePackage.bind(self))
       .then(commitRepository.bind(self))
       .then(function () {
         done();
@@ -51,21 +52,22 @@ function commitRepository(repoName) {
     // .then(function () { return runGitCommand('push', '-u', 'origin', 'master'); })
 }
 
-function updatePackageJson(repoName) {
+function updatePackage(repoName) {
   if (!repoName) {
     this.log.error('GitHub repository name is missing. Please file a bug with steps to reproduce: https://github.com/anvaka/generator-n/issues');
     return;
   }
 
-  var packageJSON = require('./packageJson').get();
-  if (packageJSON.repository && packageJSON.repository.url) {
-    return repoName; // Repository information is already present;
-  }
+  var pkg = packageJson.read();
 
-  require('./packageJson').set('repository', {
-    type: 'git',
-    url: 'https://github.com/' + repoName
-  });
+  if (pkg) {
+    if (!pkg.repository) pkg.repository = 'git://github.com/' + repoName
+    if (!pkg.bugs) pkg.bugs = 'https://github.com/' + repoName + '/issues'
+    if (!pkg.homepage) pkg.homepage = 'https://github.com/' + repoName
+    if (!pkg.engines) pkg.engines = { node: '>= 0.10.0' }
+
+    packageJson.write(pkg)
+  }
 
   return repoName;
 }
@@ -90,8 +92,7 @@ function createGitHubProject(token) {
     // we should offer him way to restore it
     if (err) {
       // can we recover from this error?
-      var unauthorized = err.statusCode === 401;
-      if (unauthorized) {
+      if (err.statusCode == 401) {
         // let's remove current credentials:
         this.settings.set('githubOAuth', undefined);
         this.log.info('Could not authorize with github using your token. Have you revoked it?');
