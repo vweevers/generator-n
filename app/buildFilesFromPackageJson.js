@@ -19,7 +19,7 @@ module.exports = function () {
 
 function copyTemplates(packageJson) {
   this.copy('_.gitignore', '.gitignore');
-  this.template('_readme.md', 'README.md');
+  // this.template('_readme.md', 'README.md');
 }
 
 function createEntryPoint(mainFileName) {
@@ -41,23 +41,29 @@ function initPackageVariables(packageJson) {
 }
 
 function createLicense(license) {
-  var licenseTemplate = getLicenseTemplateFromName(license);
-  if (!licenseTemplate) {
+  if (license.match(/\bmit\b/i)) {
+    var licenseTemplate = 'mit';
+  } else if (license.match(/\bbsd\b/i)) {
+    licenseTemplate = license.indexOf('3') >= 0 ? 'bsd3' : 'bsd2';
+  } else {
     // We don't have this license template. Ignore.
     return;
   }
+
   this.template(path.join('license', licenseTemplate), 'LICENSE');
 }
 
 function createUnitTests(packageJson) {
   var testCommand = packageJson.scripts && packageJson.scripts.test;
-  var devTestDependency = getDevDependcyFromScriptName(testCommand);
-  if (!devTestDependency) {
+  var match = testCommand.match(/^(tap|tape|mocha|grunt|cake)\b/);
+  var framework = match && match[1];
+
+  if (!framework) {
     // no testing framework found. Ignoring;
     return;
   }
 
-  var installArgs = ['install', devTestDependency, '--save-dev'];
+  var installArgs = ['install', framework, '--save-dev'];
   console.log(chalk.yellow.bold('npm ' + installArgs.join(' ')));
 
   var done = this.async(),
@@ -74,18 +80,5 @@ function createUnitTests(packageJson) {
   function handleError(err) {
     self.log.error('Failed to install test dependencies. You will have to run command manually. Exit code: ' + err);
     done();
-  }
-}
-
-function getDevDependcyFromScriptName(testScript) {
-  var framework = testScript.match(/^(tap|tape|mocha|grunt|cake)\b/);
-  return framework && framework[1];
-}
-
-function getLicenseTemplateFromName(licenseName) {
-  if (licenseName.match(/\bmit\b/i)) {
-    return 'mit';
-  } else if (licenseName.match(/\bbsd\b/i)) {
-    return licenseName.indexOf('3') >= 0 ? 'bsd3' : 'bsd2';
   }
 }

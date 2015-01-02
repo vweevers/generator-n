@@ -15,7 +15,8 @@ var NGenerator = module.exports = function NGenerator(args, options, config) {
 util.inherits(NGenerator, yeoman.generators.Base);
 
 NGenerator.prototype.npmInit = require('./npmInit.js');
-
 NGenerator.prototype.buildFilesFromPackage = require('./buildFilesFromPackageJson');
-
 NGenerator.prototype.createGithubProject = require('./createGitHubProject');
+NGenerator.prototype.initTravis = require('./initTravis');
+NGenerator.prototype.initAppVeyor = require('./initAppVeyor');
+NGenerator.prototype.createReadme = require('./createReadme');

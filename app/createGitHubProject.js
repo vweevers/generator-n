@@ -46,9 +46,9 @@ function commitRepository(repoName) {
 
   return runGitCommand('init')
     .then(function () { return runGitCommand('add', '.'); })
-    .then(function () { return runGitCommand('commit', '-m', 'Initial commit'); })
+    // .then(function () { return runGitCommand('commit', '-m', 'Initial commit'); })
     .then(function () { return runGitCommand('remote', 'add', 'origin', 'git@github.com:' + repoName + '.git'); })
-    .then(function () { return runGitCommand('push', '-u', 'origin', 'master'); })
+    // .then(function () { return runGitCommand('push', '-u', 'origin', 'master'); })
 }
 
 function updatePackageJson(repoName) {
@@ -81,8 +81,6 @@ function createGitHubProject(token) {
 
   this.log.info('Creating GitHub project "' + projectName + '"... ');
 
-  var self = this;
-
   var ghme = require('octonode').client(token).me();
   ghme.repo({
     "name": projectName,
@@ -95,10 +93,10 @@ function createGitHubProject(token) {
       var unauthorized = err.statusCode === 401;
       if (unauthorized) {
         // let's remove current credentials:
-        self.settings.set('githubOAuth', undefined);
-        self.log.info('Could not authorize with github using your token. Have you revoked it?');
-        getToken(self)
-          .then(createGitHubProject.bind(self))
+        this.settings.set('githubOAuth', undefined);
+        this.log.info('Could not authorize with github using your token. Have you revoked it?');
+        getToken(this)
+          .then(createGitHubProject.bind(this))
           .then(function (repoName) {
             deferred.resolve(repoName)
           }, function (reason) {

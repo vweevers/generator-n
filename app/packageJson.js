@@ -17,11 +17,10 @@ module.exports = {
 
 function readPackageJson() {
   try {
-    // TODO: this is not accurate. It will be cached upon first read, but file
-    // could be modified afterwards.
-    return require(pathToPackageJson);
-  }
-  catch (e) { /* package.json is missing. We'll have to run npm init */ }
+    // don't use require(), to avoid cache
+    var json = fs.readFileSync(pathToPackageJson, 'utf-8')
+    return JSON.parse(json)
+  } catch (e) {}
 }
 
 function writePackageJson(packageJson) {
