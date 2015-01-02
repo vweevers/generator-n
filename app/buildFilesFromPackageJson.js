@@ -63,22 +63,6 @@ function createUnitTests(packageJson) {
     return;
   }
 
-  var installArgs = ['install', framework, '--save-dev'];
-  console.log(chalk.yellow.bold('npm ' + installArgs.join(' ')));
-
-  var done = this.async(),
-      self = this;
-  this.spawnCommand('npm', installArgs)
-    .on('error', handleError)
-    .on('exit', function (err) {
-      if (err) { handleError(err); }
-      else {
-        done();
-      }
-    });
-
-  function handleError(err) {
-    self.log.error('Failed to install test dependencies. You will have to run command manually. Exit code: ' + err);
-    done();
-  }
+  var done = this.async()
+  this.npmInstall([framework], { 'saveDev': true }, done);
 }
